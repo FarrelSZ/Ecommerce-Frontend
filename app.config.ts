@@ -2,6 +2,7 @@ export default defineAppConfig({
   ui: {
     colors: {
       primary: "orange",
+      gray: "muted",
     },
     buttons: {
       rounded: "rounded-sm",

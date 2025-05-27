@@ -1,6 +1,6 @@
 <template>
   <div class="default-layout flex flex-col min-h-screen">
-    <LayoutsHeaderOrange />
+    <LayoutsHeaderWhite />
     <main class="main-layout flex flex-1 bg-slate-300"><slot /></main>
     <LayoutsFooter />
   </div>

@@ -1,13 +1,19 @@
 <template>
   <div>
-    <Ubutton variant="link" color="white" padding="none" to="/" class="logo text-4xl mx-10 !font-normal"
-      >Fardeka</Ubutton
-    >
+    <UButton variant="link" :color="color" :padded="false" to="/" class="logo text-4xl !font-normal">Fardeka</UButton>
   </div>
 </template>
 
-<script>
-export default {};
+<script setup>
+const props = defineProps({
+  color: {
+    type: String,
+    default: "white",
+    validator: (propsValue) => ["white", "orange"].includes(propsValue),
+  },
+});
+
+console.log("Color props:", props.color);
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped></style>
