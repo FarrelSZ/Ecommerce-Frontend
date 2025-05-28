@@ -1,5 +1,9 @@
 <template>
-  <div>Homepage</div>
+  <div>
+    <UContainer class="grid grid-cols-2 h-full py-20">
+      <BaseCard> </BaseCard>
+    </UContainer>
+  </div>
 </template>
 
 <script setup>

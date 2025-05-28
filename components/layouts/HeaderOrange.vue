@@ -1,13 +1,13 @@
 <template>
   <div>
-    <header class="header-orange text-white flex-col">
-      <LayoutsHeaderProfile v-if="route.meta?.header?.showProfile" />
-      <div class="header-bottom bg-gradient-to-b from-primary to-[#FF6633] flex-1 py-6">
-        <UContainer class="header-bottom-container flex justify-between h-full items-center gap-10">
+    <header class="header-orange text-white flex flex-col">
+      <LayoutsHeaderProfile v-if="defaultMeta.showProfile" />
+      <div class="header-bottom bg-gradient-to-b from-primary to-[#FF6633] flex-1 py-1">
+        <UContainer class="header-bottom-container flex justify-between h-full items-center gap-12">
           <BaseLogo />
-          <LayoutsSearchBar v-if="route.meta?.header?.showSearch" class="flex-1" />
+          <LayoutsSearchBar v-if="defaultMeta.showSearch" class="flex-1" />
           <!-- <div class="mx-10">Cart Button</div> -->
-          <UButton v-if="route.meta?.header?.showCart" variant="link" color="white" :padded="false" class="mx-10">
+          <UButton v-if="defaultMeta.showCart" variant="link" color="white" :padded="false" class="mx-10">
             <IconCart />
           </UButton>
         </UContainer>

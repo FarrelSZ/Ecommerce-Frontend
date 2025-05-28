@@ -20,8 +20,8 @@ export default defineAppConfig({
       },
     },
     cards: {
-      rounded: "rounded-none",
-      ring: "ring-0",
+      // rounded: "rounded-none",
+      // ring: "ring-0",
     },
     verticalNavigation: {
       font: "font-normal",
@@ -42,6 +42,24 @@ export default defineAppConfig({
     },
     badges: {
       rounded: "rounded-sm",
+    },
+    // custom breadcrumb (link active dan non active dan disabled)
+    breadcrumb: {
+      variants: {
+        active: {
+          true: {
+            link: "text-primary font-semibold",
+          },
+          false: {
+            link: "text-muted font-medium",
+          },
+        },
+        disabled: {
+          true: {
+            link: "cursor-not-allowed opacity-75",
+          },
+        },
+      },
     },
   },
 });
