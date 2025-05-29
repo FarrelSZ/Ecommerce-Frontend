@@ -1,7 +1,7 @@
 <template>
   <div class="default-layout flex flex-col min-h-screen">
     <LayoutsHeaderOrange />
-    <main class="main-layout flex flex-1 bg-slate-300"><slot /></main>
+    <main class="main-layout flex-1 bg-[#F5F5F5]"><slot /></main>
     <LayoutsFooter />
   </div>
 </template>
