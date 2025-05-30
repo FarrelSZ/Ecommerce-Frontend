@@ -28,8 +28,8 @@ const attribute = computed(() => {
         rounded: "rounded-none",
       },
     };
-    return {};
   }
+  return {};
 });
 </script>
 
