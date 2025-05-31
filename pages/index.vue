@@ -42,8 +42,8 @@
       </UContainer>
     </section>
 
-    <UContainer color="white" class="font-normal px-28 justify-center">
-      <UButton role="button">Login untuk lihat lainnya</UButton>
+    <UContainer class="flex justify-center" role="button">
+      <UButton class="font-normal px-28">Login untuk lihat lainnya</UButton>
     </UContainer>
   </div>
 </template>
