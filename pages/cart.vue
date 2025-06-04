@@ -61,7 +61,7 @@
             <IconVoucher />
             Voucher Syopo
           </div>
-          <UButton @click="openVoucher = true"> Masukan Voucher </UButton>
+          <ModalVoucher />
         </div>
       </template>
       <template #default>
@@ -100,7 +100,6 @@
         </div>
       </template>
     </UCard>
-    <ModalVoucher v-model="openVoucher" />
   </UContainer>
 </template>
 
