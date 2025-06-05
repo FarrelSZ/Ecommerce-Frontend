@@ -17,9 +17,7 @@
             <UInput placeholder="Nomer lengkap" size="lg" />
           </UFormField>
           <UFormField class="col-span-2">
-            <UInput>
-              <FeatureProfileAddressInputSelectCity />
-            </UInput>
+            <FeatureProfileAddressInputSelectCity placeholder="Provinsi" size="lg" />
           </UFormField>
           <UFormField>
             <UInput placeholder="Kecamatan" size="lg" />
