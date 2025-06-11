@@ -11,9 +11,9 @@
     </div>
     <!-- Main Content Area -->
     <div class="flex-1">
-      <UCard>
+      <component :is="wrapper">
         <NuxtPage />
-      </UCard>
+      </component :is="wrapper">
     </div>
   </UContainer>
 </template>
