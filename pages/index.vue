@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-6 pb-6">
     <section class="banner-section bg-white py-7">
       <UContainer>
-        <FeatureHomepageCarousel :items="items" />
+        <BaseCarousel width="796px" height="235px" aspect-ratio="3.39/1" :items="items" class="mx-auto" />
       </UContainer>
     </section>
     <section class="category-section">

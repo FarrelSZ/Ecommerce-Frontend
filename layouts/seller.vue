@@ -11,6 +11,7 @@
 </template>
 
 <script setup lang="ts">
+const route = useRoute();
 // Interface yang sesuai dengan kebutuhan sidebar
 interface SidebarItem {
   label: string;
@@ -19,7 +20,7 @@ interface SidebarItem {
   children?: SidebarItem[];
 }
 
-const sidebarItems = ref<SidebarItem[]>([
+const sidebarItems = computed(() => [
   {
     label: "Pesanan",
     icon: "i-heroicons:clipboard-document-list",
@@ -28,6 +29,7 @@ const sidebarItems = ref<SidebarItem[]>([
   {
     label: "Produk",
     icon: "i-heroicons:inbox-stack", // Perbaiki icon yang duplikat
+    defaultOpen: true,
     children: [
       {
         label: "Produk Saya",

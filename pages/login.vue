@@ -15,15 +15,17 @@
           }"
         >
           <h2>Login</h2>
-          <UForm class="mt-7 space-y-7">
-            <UFormField label="Email" vierror="Please enter a valid email address.">
-              <UInput placeholder="Enter your email" class="w-full" size="lg" />
+          <UForm class="mt-7 space-y-7" @submit.prevent="handleSubmit">
+            <UFormField :error="v$.phone_email.$errors?.[0]?.$message" label="Email">
+              <UInput v-model="form.phone_email" placeholder="Enter your email" class="w-full" size="lg" />
             </UFormField>
-            <UFormField label="Password">
-              <BaseInputPassword />
+            <UFormField :error="v$.password.$errors?.[0]?.$message" label="Password">
+              <BaseInputPassword v-model="form.password" placeholder="Enter your password" />
             </UFormField>
             <div>
-              <UButton block>Log in</UButton>
+              <UButton type="submit" block :loading="status === 'pending' || statusProfile === 'pending'"
+                >Log in</UButton
+              >
               <UButton variant="link" color="blue" :padded="false" class="mt-2" to="/forgot-password">
                 Lupa password
               </UButton>
@@ -37,10 +39,7 @@
               <span class="bg-white px-3 text-gray-300 font-normal">ATAU</span>
             </div>
           </div>
-          <UButton block color="white">
-            <img src="~/assets/images/google.png" class="w-6 h-6" />
-            Google
-          </UButton>
+          <BaseButtonGoogleSignIn />
           <p class="text-sm font-normal text-black/25 text-center mt-8">
             Baru di Fardeka?
             <NuxtLink to="/registration" class="text-primary">Daftar</NuxtLink>
@@ -52,12 +51,87 @@
 </template>
 
 <script setup>
+import useVuelidate from "@vuelidate/core";
+import { email, helpers, minLength, required } from "@vuelidate/validators";
+
 definePageMeta({
   layout: "auth",
   header: {
     title: "Log in",
   },
+  middleware: ["must-not-auth"],
 });
+
+const session = useSession();
+const { profile, token: tokenSession } = storeToRefs(session);
+const token = useCookie("access_token");
+
+const nuxtApp = useNuxtApp();
+
+const form = ref({
+  phone_email: "",
+  password: "",
+});
+
+const rules = {
+  phone_email: {
+    required,
+    isValidUsername: helpers.withMessage("Value is not valid", (value) => {
+      if (value) {
+        if (/^\d{4}/.test(value)) {
+          // checking phone number
+          return /^\d+$/.test(value);
+        }
+
+        // chekcing email
+        return email.$validator(value);
+      }
+      return true;
+    }),
+  },
+  password: { required, minLength: minLength(8) },
+};
+
+const $externalResults = ref({});
+
+const v$ = useVuelidate(rules, form, {
+  $autoDirty: true,
+  $externalResults,
+});
+
+const { status, execute, error, data } = useSubmit("/server/api/login");
+
+const { execute: getProfile, status: statusProfile } = useApi("/server/api/profile", {
+  immediate: false,
+  onResponse({ response }) {
+    if (response.ok) {
+      profile.value = response._data?.data;
+
+      nuxtApp.runWithContext(() => {
+        navigateTo("/");
+      });
+    }
+  },
+});
+
+async function handleSubmit() {
+  const isValid = await v$.value.$validate();
+  if (!isValid) return;
+  // Fetch api
+
+  await execute(form.value);
+
+  if (error.value) {
+    $externalResults.value = error.value.data?.meta?.validations || {};
+    return;
+  }
+
+  if (status.value === "success" && data.value?.data?.token) {
+    tokenSession.value = data.value?.data?.token;
+    token.value = data.value?.data?.token;
+    getProfile();
+  }
+}
 </script>
 
 <style lang="scss" scoped></style>

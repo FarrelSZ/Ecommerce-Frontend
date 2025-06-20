@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
-  modules: ["@nuxt/eslint", "@nuxt/ui", "@nuxt/icon", "@vueuse/nuxt"],
+  modules: ["@nuxt/eslint", "@nuxt/ui", "@nuxt/icon", "@vueuse/nuxt", "@nuxt/image", "@pinia/nuxt"],
   css: [
     "@/app/assets/css/main.css", // atau '@/assets/css/main.css'
   ],
@@ -24,5 +24,16 @@ export default defineNuxtConfig({
         },
       ],
     },
+  },
+  runtimeConfig: {
+    public: {
+      clientIdGoogleSignIn: "",
+    },
+  },
+  routeRules: {
+    "/server/**": { proxy: `${process.env.NUXT_BASE_URL || "http://127.0.0.1:8000"}/**` },
+    "/registration/**": { ssr: false },
+    "/cart": { ssr: false },
+    "/checkout/**": { ssr: false },
   },
 });
