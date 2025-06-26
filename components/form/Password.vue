@@ -4,10 +4,10 @@
     <h3 class="text-xl font-normal">Atur Password Kamu</h3>
   </div>
   <div class="px-16 pb-16 pt-9">
-    <UForm class="space-y-6">
+    <UForm :state="form" class="space-y-6" @submit.prevent="handleSubmit">
       <p class="text-center text-sm text-black/80">Buat password baru</p>
-      <UFormField>
-        <BaseInputPassword v-model="password" placeholder="Password" size="lg" />
+      <UFormField :error="v$.password.$errors?.[0]?.$message">
+        <BaseInputPassword v-model="form.password" placeholder="Password" size="lg" />
       </UFormField>
       <ul class="!mt-2">
         <li
@@ -26,14 +26,29 @@
           />
         </li>
       </ul>
-      <UButton block class="uppercase" @click="emit('next')">Berikutnya</UButton>
+      <UButton type="submit" block class="uppercase" :loading="loading" :disabled="!allValidationsPassed">
+        Berikutnya
+      </UButton>
     </UForm>
   </div>
 </template>
 
 <script setup>
+import useVuelidate from "@vuelidate/core";
+import { required } from "@vuelidate/validators";
+
+defineProps({
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const emit = defineEmits(["next", "back"]);
-const password = ref("");
+
+const form = ref({
+  password: "",
+});
 const validationMessage = [
   { message: "Min. satu karakter huruf kecil", key: "lowercase" },
   { message: "Min. satu karakter huruf besar", key: "uppercase" },
@@ -64,14 +79,52 @@ function hasValidLength(str) {
 }
 
 function hasAllowedChars(str) {
-  return /^[a-zA-Z0-9,.!?-]+$/.test(str);
+  return /^[a-zA-Z0-9,.!?-@#$%^&*()_+]+$/.test(str);
 }
 
-watch(password, (newValue) => {
-  isContain.lowercase = hasLowerCase(newValue);
-  isContain.uppercase = hasUpperCase(newValue);
-  isContain.validLength = hasValidLength(newValue);
-  isContain.allowedChar = hasAllowedChars(newValue);
+const allValidationsPassed = computed(() => {
+  return Object.values(isContain).every(Boolean);
+});
+
+watch(
+  () => form.value.password,
+  (newValue) => {
+    isContain.lowercase = hasLowerCase(newValue);
+    isContain.uppercase = hasUpperCase(newValue);
+    isContain.validLength = hasValidLength(newValue);
+    isContain.allowedChar = hasAllowedChars(newValue);
+  }
+);
+
+const $externalResults = ref({});
+
+const rules = {
+  password: {
+    required,
+    validLength: hasValidLength,
+    minLowerCase: hasLowerCase,
+    minUpperCase: hasUpperCase,
+    validCharacter: hasAllowedChars,
+  },
+};
+
+const v$ = useVuelidate(rules, form, {
+  $autoDirty: true,
+  $externalResults,
+});
+
+async function handleSubmit() {
+  $externalResults.value = {};
+  const isValid = await v$.value.$validate();
+  if (!isValid) return;
+
+  emit("next", { password: form.value.password });
+}
+
+defineExpose({
+  setError: (error) => {
+    $externalResults.value = error;
+  },
 });
 </script>
 

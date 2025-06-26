@@ -20,9 +20,7 @@ export function useCountdown() {
 
     // Jika ada jam, 00:00:00
     if (hours > 0) {
-      return `${padNumber(hours)}:${padNumber(minutes)}:${padNumber(
-        remainingSeconds
-      )}`;
+      return `${padNumber(hours)}:${padNumber(minutes)}:${padNumber(remainingSeconds)}`;
     }
 
     // Jika ada menit, 00:00

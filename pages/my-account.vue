@@ -11,9 +11,11 @@
     </div>
     <!-- Main Content Area -->
     <div class="flex-1">
-      <component :is="wrapper">
-        <NuxtPage />
-      </component :is="wrapper">
+      <ClientOnly>
+        <component :is="wrapper">
+          <NuxtPage />
+        </component>
+      </ClientOnly>
     </div>
   </UContainer>
 </template>

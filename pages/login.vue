@@ -15,7 +15,7 @@
           }"
         >
           <h2>Login</h2>
-          <UForm class="mt-7 space-y-7" @submit.prevent="handleSubmit">
+          <UForm :state="form" class="mt-7 space-y-7" @submit="handleSubmit">
             <UFormField :error="v$.phone_email.$errors?.[0]?.$message" label="Email">
               <UInput v-model="form.phone_email" placeholder="Enter your email" class="w-full" size="lg" />
             </UFormField>
@@ -62,6 +62,7 @@ definePageMeta({
   middleware: ["must-not-auth"],
 });
 
+const toast = useToast();
 const session = useSession();
 const { profile, token: tokenSession } = storeToRefs(session);
 const token = useCookie("access_token");
@@ -117,8 +118,8 @@ const { execute: getProfile, status: statusProfile } = useApi("/server/api/profi
 async function handleSubmit() {
   const isValid = await v$.value.$validate();
   if (!isValid) return;
-  // Fetch api
 
+  // Fetch api
   await execute(form.value);
 
   if (error.value) {
@@ -131,6 +132,11 @@ async function handleSubmit() {
     token.value = data.value?.data?.token;
     getProfile();
   }
+  toast.add({
+    title: "Login success",
+    description: "Selamat Berbelanja di Fardeka",
+    color: "success",
+  });
 }
 </script>
 

@@ -1,9 +1,9 @@
 <template>
   <section class="bg-primary">
-    <UContainer class="grid grid-cols-2 h-full py-20">
+    <UContainer class="grid grid-cols-1 lg:grid-cols-2 h-full py-20">
       <div class="flex justify-center items-center">
         <div class="flex flex-col gap-14 text-white text-center">
-          <h1 class="text-8xl">Syopo</h1>
+          <h1 class="text-8xl">Fardeka</h1>
           <p>Tempat Belanja Online No. 1<br />di Asia Tengara dan Taiwan</p>
         </div>
       </div>
@@ -15,12 +15,13 @@
           }"
         >
           <h2>Daftar</h2>
-          <UForm class="mt-7 space-y-7" @submit.prevent="handleSubmit">
-            <UFormField vierror="Please enter a valid email address.">
-              <UInput placeholder="Email" size="lg" class="w-full" />
+          <UForm :state="registrationForm" class="mt-7 space-y-7" @submit="handleSubmit">
+            <UFormField>
+              <UInput v-model="registrationForm.email" placeholder="Email" size="lg" class="w-full" />
             </UFormField>
-            <UButton type="submit" block class="uppercase">Berikutnya</UButton>
+            <UButton :loading="status === 'pending'" type="submit" block class="uppercase">Berikutnya</UButton>
           </UForm>
+          <table></table>
           <div class="relative my-4">
             <div class="absolute inset-0 flex items-center">
               <div class="w-full border-t border-gray-200"></div>
@@ -44,6 +45,9 @@
 </template>
 
 <script setup>
+import useVuelidate from "@vuelidate/core";
+import { email, required } from "@vuelidate/validators";
+
 definePageMeta({
   layout: "auth",
   header: {
@@ -51,12 +55,41 @@ definePageMeta({
   },
 });
 
-const value = ref("");
-
 const router = useRouter();
+const { registrationForm } = storeToRefs(useSession());
 
-function handleSubmit() {
-  router.push("/registration/form");
+const rules = {
+  email: { required, email },
+};
+
+const $externalResults = ref({});
+
+const v$ = useVuelidate(rules, registrationForm, {
+  $autoDirty: true,
+  $externalResults,
+});
+
+const { status, error, execute } = useSubmit("/server/api/register");
+
+async function handleSubmit() {
+  $externalResults.value = {};
+
+  const isValid = await v$.value.$validate();
+  if (!isValid) return;
+
+  // Fetch api
+  await execute({
+    email: registrationForm.value.email,
+  });
+
+  if (error.value) {
+    $externalResults.value = error.value.data?.meta?.validations || {};
+    return;
+  }
+
+  if (status.value === "success") {
+    router.push("/registration/form");
+  }
 }
 </script>
 

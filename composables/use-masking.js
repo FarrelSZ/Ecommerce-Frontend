@@ -6,16 +6,13 @@ export function useMasking() {
     const [domainName, domainExt] = domain.split("."); // maskemail.com => ['maskemail', 'com']
 
     // Mask username with first 2 chars visible
-    const maskedUsername =
-      username.slice(0, 2) + "*".repeat(username.length - 2);
+    const maskedUsername = username.slice(0, 2) + "*".repeat(username.length - 2);
 
     // Mask domain name with first char visible
-    const maskedDomainName =
-      domainName.slice(0, 1) + "*".repeat(domainName.length - 1);
+    const maskedDomainName = domainName.slice(0, 1) + "*".repeat(domainName.length - 1);
 
     // Mask domain extension with first char visible
-    const maskedDomainExt =
-      domainExt.slice(0, 1) + "*".repeat(domainExt.length - 1);
+    const maskedDomainExt = domainExt.slice(0, 1) + "*".repeat(domainExt.length - 1);
 
     return `${maskedUsername}@${maskedDomainName}.${maskedDomainExt}`;
   };

@@ -2,8 +2,10 @@
   <div class="header-profile bg-primary py-2 text-white">
     <UContainer class="header-profile-container flex justify-end divide-x divide-gray-50/50">
       <template v-if="!session.token">
-        <UButton variant="link" color="neutral" :padded="false" class="px-3" to="/registration"> Daftar </UButton>
-        <UButton variant="link" color="neutral" :padded="false" class="px-3" to="/login"> Login </UButton>
+        <UButton variant="link" :padded="false" class="px-3 text-white hover:text-white" to="/registration">
+          Daftar
+        </UButton>
+        <UButton variant="link" :padded="false" class="px-3 text-white hover:text-white" to="/login"> Login </UButton>
       </template>
       <UDropdownMenu v-else :items="profileItems" class="cursor-pointer flex items-center gap-2">
         <div class="">
@@ -40,23 +42,9 @@ const profileItems = ref<DropdownMenuItem[][]>([
     {
       label: "Logout",
       icon: "i-heroicons:arrow-left-start-on-rectangle",
-      click: session.logout,
+      onSelect: session.logout,
     },
   ],
-]);
-const items = ref<DropdownMenuItem[]>([
-  {
-    label: "Profile",
-    icon: "i-lucide-user",
-  },
-  {
-    label: "Billing",
-    icon: "i-lucide-credit-card",
-  },
-  {
-    label: "Settings",
-    icon: "i-lucide-cog",
-  },
 ]);
 </script>
 
