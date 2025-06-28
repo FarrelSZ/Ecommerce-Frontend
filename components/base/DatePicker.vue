@@ -1,23 +1,70 @@
+<script setup>
+import { DatePicker as VCalendarDatePicker } from "v-calendar";
+
+import "v-calendar/dist/style.css";
+import { format } from "date-fns";
+
+defineProps({
+  range: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const date = defineModel({
+  type: [Date, Object],
+  default: null,
+});
+
+const showingDate = computed(() => {
+  if (date.value) return format(date.value, "d/MM/yy");
+  return "";
+});
+
+const attrs = {
+  transparent: true,
+  borderless: true,
+  color: "primary",
+  "is-dark": { selector: "html", darkClass: "dark" },
+  "first-day-of-week": 2,
+};
+</script>
+
 <template>
-  <UPopover>
-    <UButton color="neutral" variant="subtle" icon="i-lucide-calendar">
-      {{ modelValue ? df.format(modelValue.toDate(getLocalTimeZone())) : "Select a date" }}
-    </UButton>
+  <UPopover :popper="{ placement: 'bottom-start' }" trigger="click">
+    <UInput :model-value="showingDate" size="lg" class="w-full" placeholder="d/MM/yy" />
 
     <template #content>
-      <UCalendar v-model="modelValue" class="p-2" />
+      <VCalendarDatePicker v-if="range" v-model.range="date" :columns="4" v-bind="{ ...attrs, ...$attrs }" borderless />
+      <VCalendarDatePicker v-else v-model="date" v-bind="{ ...attrs, ...$attrs }" borderless />
     </template>
   </UPopover>
 </template>
 
-<script setup>
-import { CalendarDate, DateFormatter, getLocalTimeZone } from "@internationalized/date";
+<style>
+:root {
+  --vc-gray-50: rgb(var(--color-gray-50));
+  --vc-gray-100: rgb(var(--color-gray-100));
+  --vc-gray-200: rgb(var(--color-gray-200));
+  --vc-gray-300: rgb(var(--color-gray-300));
+  --vc-gray-400: rgb(var(--color-gray-400));
+  --vc-gray-500: rgb(var(--color-gray-500));
+  --vc-gray-600: rgb(var(--color-gray-600));
+  --vc-gray-700: rgb(var(--color-gray-700));
+  --vc-gray-800: rgb(var(--color-gray-800));
+  --vc-gray-900: rgb(var(--color-gray-900));
+}
 
-const df = new DateFormatter("en-US", {
-  dateStyle: "medium",
-});
-
-const modelValue = shallowRef(new CalendarDate(2022, 1, 10));
-</script>
-
-<style lang="scss" scoped></style>
+.vc-primary {
+  --vc-accent-50: rgb(var(--color-primary-50));
+  --vc-accent-100: rgb(var(--color-primary-100));
+  --vc-accent-200: rgb(var(--color-primary-200));
+  --vc-accent-300: rgb(var(--color-primary-300));
+  --vc-accent-400: rgb(var(--color-primary-400));
+  --vc-accent-500: rgb(var(--color-primary-500));
+  --vc-accent-600: rgb(var(--color-primary-600));
+  --vc-accent-700: rgb(var(--color-primary-700));
+  --vc-accent-800: rgb(var(--color-primary-800));
+  --vc-accent-900: rgb(var(--color-primary-900));
+}
+</style>

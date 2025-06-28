@@ -13,10 +13,11 @@
           </div>
           <div class="category-section-content grid grid-cols-10">
             <FeatureHomepageCategoryItem
-              v-for="i in 20"
-              :key="`cat-${i}`"
-              title="Elektronik"
-              src="~/assets/images/tv.png"
+              v-for="cat in categories"
+              :key="`cat-${cat.slug}`"
+              :title="cat.name"
+              :image="cat.icon"
+              :slug="cat.slug"
             />
           </div>
         </div>
@@ -29,34 +30,104 @@
         </div>
         <div class="product-section-content grid grid-cols-6 gap-3 mt-3">
           <BaseProductCard
-            v-for="i in 36"
-            :key="`product-${i}`"
-            title="Kawabata Sepatu Sandal Kasual Slingback Mules"
-            price="10000"
-            sale="50"
-            discount="30"
-            image="https://s3-alpha-sig.figma.com/img/48e9/7de7/d13128b9ad75dda5a6e64cd6c03b5de2?Expires=1729468800&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=I946mKhtIxrdSXQGZyOTw~qDLDwCmvBgsJnHd9w1kUtRnQwjUglcgZ89Y0UnWaLhdDPqeVUYTzntmRAfiLF0aXnwV7R~5LP2dsSq4pFz6aDJmfqAhzk3mrP9g2sp0W-Wm9FvUydrqE0PukRb8wlelWWinew6gPV0cMsYrjCJgXoiFWE3BY1xc7tN6ze~1eyag0Ig4mdG27FgS527RrU03778yo3ttMfHFAfk9UggrWHuFWAYp2XiLgFqr~3~6uboaVVhBTqpus61V0-0SYoR-5JPWF9BCG9c-1qfk494trUMNyfm3xUVgNoc1Mws4WS5Bo~0bhcAbjGZmVlq3Ntc9Q__"
-            :slug="`product-${i}`"
+            v-for="product in productList?.data"
+            :key="`product-${product.uuid}`"
+            :title="product.name"
+            :price="product?.price_sale || product?.price"
+            :image="product.image_url"
+            :slug="product.slug"
+            :discount="product?.price_discount_percentage"
           />
         </div>
       </UContainer>
     </section>
 
-    <UContainer class="flex justify-center" role="button">
-      <UButton class="font-normal px-28">Login untuk lihat lainnya</UButton>
+    <UContainer class="flex justify-center" role="button"
+      ><UButton v-if="!session.token" color="white" class="font-normal px-28" to="/login">
+        Login untuk Lihat Lainnya
+      </UButton>
+      <UButton v-else-if="productList?.next_page_url" color="white" class="font-normal px-28" @click="loadMore">
+        Lihat Lainnya
+      </UButton>
     </UContainer>
   </div>
 </template>
 
 <script setup>
-const items = [
-  "https://picsum.photos/1920/1080?random=1",
-  "https://picsum.photos/1920/1080?random=2",
-  "https://picsum.photos/1920/1080?random=3",
-  "https://picsum.photos/1920/1080?random=4",
-  "https://picsum.photos/1920/1080?random=5",
-  "https://picsum.photos/1920/1080?random=6",
-];
+const nuxtApp = useNuxtApp();
+const session = useSession();
+
+const pagination = ref({
+  page: 1,
+});
+
+const { data: oldProductData } = useNuxtData("product-homepage");
+
+const { data: respSlider } = useApi("/server/api/slider", {
+  key: "slider-banner",
+
+  getCachedData() {
+    return nuxtApp.payload.data?.["slider-banner"] || nuxtApp.static.data?.["slider-banner"];
+  },
+});
+const { data: categories } = useApi("/server/api/category", {
+  key: "category-list",
+  transform(response) {
+    return (response?.data || []).reduce((result, parent) => {
+      result.push(
+        ...parent.childs.map((child) => ({
+          ...child,
+          icon: parent.icon,
+          name: `${parent.name} - ${child.name}`,
+        }))
+      );
+      return result;
+    }, []);
+  },
+  getCachedData() {
+    return nuxtApp.payload.data?.["category-list"] || nuxtApp.static.data?.["category-list"];
+  },
+});
+
+const { data: productList, execute } = useApi("/server/api/product", {
+  params: pagination,
+  key: "product-homepage",
+  onResponse({ response }) {
+    if (response.ok) {
+      pagination.value.page = response._data.data?.current_page;
+    }
+  },
+  transform(response) {
+    if (pagination.value.page) return response?.data?.data;
+    const newData = response?.data?.data || [];
+    return {
+      ...response.data,
+      data: [...(oldProductData.value?.data || []), ...newData],
+    };
+  },
+  watch: false,
+});
+
+// const items = [
+//   "https://picsum.photos/1920/1080?random=1",
+//   "https://picsum.photos/1920/1080?random=2",
+//   "https://picsum.photos/1920/1080?random=3",
+//   "https://picsum.photos/1920/1080?random=4",
+//   "https://picsum.photos/1920/1080?random=5",
+//   "https://picsum.photos/1920/1080?random=6",
+// ];
+
+const items = computed(() => (respSlider.value?.data || [])?.map((slider) => slider.image));
+
+function loadMore() {
+  pagination.value.page++;
+  execute();
+}
+
+useSeoMeta({
+  ogImage: () => items.value?.[0],
+  twitterImage: () => items.value?.[0],
+});
 </script>
 
 <style lang="scss" scoped></style>

@@ -2,9 +2,13 @@
   <UContainer class="py-5 flex gap-7">
     <div class="w-44 py-4">
       <div class="flex gap-3 items-center">
-        <UAvatar alt="Farrel" />
-        <!-- <span>{{ session.profile.name }}</span> -->
-        <span>Farrel</span>
+        <UAvatar
+          :src="currentProfileImage"
+          icon="i-heroicons:user"
+          :alt="session.profile.name"
+          img-class="object-cover"
+        />
+        <span>{{ session.profile.name }}</span>
       </div>
       <hr class="border-gray-200/50 my-4" />
       <LayoutsSidebar :items="links" class="my-account-sidebar" />
@@ -13,7 +17,7 @@
     <div class="flex-1">
       <ClientOnly>
         <component :is="wrapper">
-          <NuxtPage />
+          <NuxtPage @profile-image-updated="handleProfileImageUpdate" />
         </component>
       </ClientOnly>
     </div>
@@ -23,6 +27,23 @@
 <script setup>
 import { UCard } from "#components";
 
+definePageMeta({
+  middleware: ["must-auth"],
+});
+
+const session = useSession();
+
+const tempProfileImage = ref(null);
+
+// Computed untuk menentukan gambar profile mana yang ditampilkan
+const currentProfileImage = computed(() => {
+  return tempProfileImage.value || session.profile.photo_url;
+});
+
+// Handler untuk update gambar dari child component (halaman profile)
+function handleProfileImageUpdate(imageUrl) {
+  tempProfileImage.value = imageUrl;
+}
 const route = useRoute();
 const wrapper = computed(() => {
   return route.meta.wrapper || UCard;

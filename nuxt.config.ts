@@ -36,4 +36,7 @@ export default defineNuxtConfig({
     "/cart": { ssr: false },
     "/checkout/**": { ssr: false },
   },
+  image: {
+    domains: [import.meta.env.NUXT_BASE_URL?.replace("https://", "") || "127.0.0.1:8000"],
+  },
 });

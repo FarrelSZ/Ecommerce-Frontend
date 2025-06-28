@@ -4,6 +4,7 @@
     ref="carouselRef"
     :items="items"
     :ui="{ item: 'basis-full' }"
+    :autoplay="{ delay: 7000 }"
     class="base-carousel rounded-sm overflow-hidden"
     indicators
   >

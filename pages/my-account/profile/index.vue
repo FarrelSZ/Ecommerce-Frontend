@@ -4,7 +4,7 @@
     <p class="text-sm text-black/65">Kelola informasi profil Anda untuk mengontrol, melindungi dan mengamankan akun</p>
     <hr class="mt-5 mb-8 border-gray-200/60" />
     <div class="flex divide-x items-start">
-      <UForm class="flex-1 pr-6 flex flex-col gap-8" @submit.prevent="handleSubmit">
+      <UForm :state="temporaryProfile" class="flex-1 pr-6 flex flex-col gap-8" @submit.prevent="handleSubmit">
         <MyAccountFormGroup label="Username" :error="v$.username.$errors?.[0]?.$message">
           <span v-if="profile.username" class="profile-item-text">{{ profile.username || "-" }}</span>
           <UInput v-else v-model="temporaryProfile.username" class="flex-1 w-lg" size="lg" />
@@ -54,7 +54,8 @@
         >
           <URadioGroup
             v-model="temporaryProfile.gender"
-            :options="['Laki-Laki', 'Perempuan', 'Lainnya']"
+            orientation="horizontal"
+            :items="['Laki-Laki', 'Perempuan', 'Lainnya']"
             class="flex-1"
             size="lg"
             :ui="{
@@ -104,7 +105,7 @@ const temporaryProfile = ref({
 // 1. shallow copy
 // 2. deep copy
 // 3. structureClone
-
+const emit = defineEmits(["profile-image-updated"]);
 const rules = {
   name: { required },
   username: { required },
@@ -124,9 +125,12 @@ const v$ = useVuelidate(rules, temporaryProfile, {
 const inputFileElement = ref();
 
 const imageProfile = computed(() => {
-  if (temporaryProfile.value.photo_url && typeof temporaryProfile.value.photo_url !== "string")
-    return window.URL.createObjectURL(temporaryProfile.value.photo_url);
-  return profile.value.photo_url;
+  // Cek apakah ada file yang baru diupload
+  if (temporaryProfile.value.photo_url && temporaryProfile.value.photo_url instanceof File) {
+    return URL.createObjectURL(temporaryProfile.value.photo_url);
+  }
+  // Fallback ke photo_url yang sudah ada
+  return temporaryProfile.value.photo_url || profile.value.photo_url;
 });
 
 function handleChooseFile() {
@@ -135,20 +139,24 @@ function handleChooseFile() {
 }
 function handleUploadFile(event) {
   const file = event.target?.files?.[0];
-  const allowedExtension = [".jpeg", ".png"];
-  const fileExtension = file.name.split(".").pop();
+  if (!file) return;
+  const allowedExtension = [".jpeg", ".png", ".jpg"];
+  const fileExtension = file.name.split(".").pop().toLowerCase();
 
   if (!allowedExtension.includes(`.${fileExtension}`)) {
     alert(`Format file tidak didukung. Silakan upload file ${props.accept}`);
     return;
   }
 
-  if (file.size > 1024000) {
+  if (file.size > 5024000) {
     alert("File size melebihi ketentuan");
     return;
   }
-
+  const previewUrl = URL.createObjectURL(file);
   temporaryProfile.value.photo_url = file;
+
+  // Emit ke parent (my-account.vue) untuk update avatar di sidebar
+  emit("profile-image-updated", previewUrl);
 }
 
 const { execute, status, error } = useSubmit("/server/api/profile");
@@ -163,7 +171,7 @@ async function handleSubmit() {
     username: temporaryProfile.value.username,
     store_name: temporaryProfile.value.store_name,
     gender: temporaryProfile.value.gender,
-    birth_date: temporaryProfile.value.birth_date ? format(temporaryProfile.value.birth_date, "Y-MM-d") : undefined,
+    birth_date: temporaryProfile.value.birth_date ? format(temporaryProfile.value.birth_date, "y-MM-d") : undefined,
     _method: "PATCH",
     photo: temporaryProfile.value.photo_url || undefined,
   };
@@ -184,6 +192,8 @@ async function handleSubmit() {
     $externalResults.value = error.value.data?.meta?.validations || {};
     return;
   }
+  // Update profile di session dengan data temporaryProfile
+  Object.assign(profile.value, temporaryProfile.value);
 }
 
 // const inputFileElement = ref();
