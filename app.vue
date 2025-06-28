@@ -1,10 +1,40 @@
 <template>
-  <div>
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-  </div>
+  <NuxtLayout>
+    <BaseToast />
+    <NuxtPage />
+  </NuxtLayout>
 </template>
+
+<script setup>
+const url = useRequestURL();
+useSeoMeta({
+  description: "Tempat Belanja Online No. 1 di Asia Tengara dan Taiwan",
+  ogTitle: "Syopo - Ayo Belanja di sini",
+  ogDescription: "Tempat Belanja Online No. 1 di Asia Tengara dan Taiwan",
+  twitterTitle: "Syopo - Ayo Belanja di sini",
+  ogUrl: () => url.href,
+  ogImage: "/images/syopo.png",
+  twitterImage: "/images/syopo.png",
+  twitterDescription: "Tempat Belanja Online No. 1 di Asia Tengara dan Taiwan",
+  twitterCard: "summary",
+});
+
+useHead({
+  titleTemplate: (titlePerPage) => {
+    return titlePerPage ? `${titlePerPage} | Fardeka` : "Fardeka - Ayo Belanja di sini";
+  },
+  htmlAttrs: {
+    lang: "id",
+  },
+  link: [
+    {
+      rel: "icon",
+      type: "image/png",
+      href: "/favicon.png",
+    },
+  ],
+});
+</script>
 
 <style>
 /* Chrome, Safari, Edge, Opera */

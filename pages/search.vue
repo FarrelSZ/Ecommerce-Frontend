@@ -64,6 +64,100 @@
 </template>
 
 <script setup>
+const nuxtApp = useNuxtApp();
+const route = useRoute();
+const router = useRouter();
+const pagination = ref({
+  page: 1,
+});
+
+const formFilter = ref({
+  categories: (typeof route.query?.categories === "string" ? [route.query?.categories] : route.query?.categories) || [],
+  minimum_price: route.query?.minimum_price || undefined,
+  maximum_price: route.query?.maximum_price || undefined,
+  sorting_price: route.query?.sorting_price || "asc",
+});
+const temporaryPrice = reactive({
+  minimum_price: route.query?.minimum_price || undefined,
+  maximum_price: route.query?.maximum_price || undefined,
+});
+
+const { data: categories } = useApi("/server/api/category", {
+  key: "category-list",
+  transform(response) {
+    return (response?.data || []).reduce((result, parent) => {
+      result.push(
+        ...parent.childs.map((child) => ({
+          ...child,
+          icon: parent.icon,
+          name: `${parent.name} - ${child.name}`,
+        }))
+      );
+      return result;
+    }, []);
+  },
+  getCachedData() {
+    return nuxtApp.payload.data?.["category-list"] || nuxtApp.static.data?.["category-list"];
+  },
+});
+
+const { data, status } = useApi("/server/api/product", {
+  params: computed(() => {
+    return {
+      search: route.query?.search,
+      ...formFilter.value,
+      ...pagination.value,
+      categories: undefined,
+      "categories[]": formFilter.value.categories,
+    };
+  }),
+  dedupe: "defer",
+});
+
+watch(
+  formFilter,
+  (newFormFilter) => {
+    router.push({
+      query: {
+        ...route.query,
+        ...newFormFilter,
+      },
+    });
+  },
+  { deep: true }
+);
+
+function applyFilterPrice() {
+  formFilter.value.minimum_price = temporaryPrice.minimum_price;
+  formFilter.value.maximum_price = temporaryPrice.maximum_price;
+}
+
+function resetFilter() {
+  formFilter.value = {
+    categories: [],
+    minimum_price: undefined,
+    maximum_price: undefined,
+    sorting_price: "asc",
+  };
+
+  temporaryPrice.minimum_price = undefined;
+  temporaryPrice.maximum_price = undefined;
+}
+
+const titleMeta = computed(() =>
+  route.query?.search
+    ? `Sedang mencari produk ${route.query?.search}`
+    : `Sedang mencari produk${route.query.categories ? ` ${route.query.categories}` : ""}`
+);
+
+useSeoMeta({
+  title: titleMeta,
+  ogTitle: () => `${titleMeta.value} | Syopo`,
+  twitterTitle: () => `${titleMeta.value} | Syopo`,
+  description: titleMeta,
+  ogDescription: titleMeta,
+  twitterDescription: titleMeta,
+});
 const page = ref(5);
 </script>
 
