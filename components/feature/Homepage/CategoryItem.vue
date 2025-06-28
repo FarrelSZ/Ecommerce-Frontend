@@ -30,4 +30,9 @@ defineProps({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.category-item img {
+  aspect-ratio: 1/1;
+  width: 100%;
+}
+</style>

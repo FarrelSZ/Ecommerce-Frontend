@@ -6,7 +6,7 @@
     >
       -{{ formattedDiscount }}%
     </div>
-    <img :src="image" class="aspect-[1/1] object-cover" />
+    <NuxtImg :src="image" format="webp" />
     <div class="product-card-detail py-2">
       <p class="text-sm font-normal text-black/80 line-clamp-2">
         {{ title }}

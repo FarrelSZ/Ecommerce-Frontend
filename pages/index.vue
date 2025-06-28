@@ -42,11 +42,16 @@
       </UContainer>
     </section>
 
-    <UContainer class="flex justify-center" role="button"
-      ><UButton v-if="!session.token" color="white" class="font-normal px-28" to="/login">
+    <UContainer class="flex justify-center" role="button">
+      <UButton v-if="!session.token" color="white" class="font-normal px-28" to="/login">
         Login untuk Lihat Lainnya
       </UButton>
-      <UButton v-else-if="productList?.next_page_url" color="white" class="font-normal px-28" @click="loadMore">
+      <UButton
+        v-else-if="productList?.next_page_url"
+        color="white"
+        class="font-normal px-28 cursor-pointer"
+        @click="loadMore"
+      >
         Lihat Lainnya
       </UButton>
     </UContainer>
@@ -98,7 +103,7 @@ const { data: productList, execute } = useApi("/server/api/product", {
     }
   },
   transform(response) {
-    if (pagination.value.page) return response?.data?.data;
+    if (pagination.value.page === 1) return response?.data;
     const newData = response?.data?.data || [];
     return {
       ...response.data,
