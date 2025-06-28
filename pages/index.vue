@@ -11,7 +11,7 @@
           <div class="category-section-header p-5 border-b border-black/5">
             <h2 class="text-base text-black/55 font-medium uppercase">Kategori</h2>
           </div>
-          <div class="category-section-content grid grid-cols-10">
+          <div class="category-section-content grid grid-cols-6">
             <FeatureHomepageCategoryItem
               v-for="cat in categories"
               :key="`cat-${cat.slug}`"
@@ -78,7 +78,7 @@ const { data: categories } = useApi("/server/api/category", {
         ...parent.childs.map((child) => ({
           ...child,
           icon: parent.icon,
-          name: `${parent.name} - ${child.name}`,
+          name: `${parent.name} -  ${child.name}`,
         }))
       );
       return result;

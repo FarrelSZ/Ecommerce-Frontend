@@ -1,6 +1,14 @@
 <template>
-  <NuxtLink class="category-item p-2 border-b border-r border-black/5 hover:shadow hover:border-black/15" to="/">
-    <img :src="image" class="aspect-[1/1] w-full" />
+  <NuxtLink
+    class="category-item p-2 border-b border-r border-black/5 hover:shadow hover:border-black/15"
+    :to="{
+      path: '/search',
+      query: {
+        categories: slug,
+      },
+    }"
+  >
+    <NuxtImg :src="image" format="webp" />
     <p class="text-sm text-center text-black/80">{{ title }}</p>
   </NuxtLink>
 </template>
@@ -12,6 +20,10 @@ defineProps({
     default: "",
   },
   image: {
+    type: String,
+    default: "",
+  },
+  slug: {
     type: String,
     default: "",
   },
