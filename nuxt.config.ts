@@ -37,6 +37,7 @@ export default defineNuxtConfig({
     "/checkout/**": { ssr: false },
   },
   image: {
-    domains: [import.meta.env.NUXT_BASE_URL?.replace("https://", "") || "127.0.0.1:8000"],
+    domains: ["127.0.0.1:8000"],
+    provider: "ipx",
   },
 });

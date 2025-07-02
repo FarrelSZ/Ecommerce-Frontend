@@ -1,16 +1,17 @@
 <template>
-  <div
-    class="bg-white p-1 flex items-center rounded-sm text-black"
+  <UForm
+    state="search"
     :class="[
-      'searchbar',
+      'searchbar bg-white flex items-center rounded-sm text-black',
       {
         'no-padded': !padded,
       },
     ]"
+    @submit.prevent="handleSearch"
   >
-    <input placeholder="CEK: Flash Sale Rp17 Lokal!" class="outline-none pl-3 flex-1" />
-    <UButton icon="i-heroicons:magnifying-glass" class="px-6" v-bind="attribute" />
-  </div>
+    <UInput v-model="searchInput" placeholder="CEK: Flash Sale Rp17 Lokal!" class="outline-none pl-3 flex-1" />
+    <UButton type="submit" icon="i-heroicons:magnifying-glass" class="px-6" v-bind="attribute" />
+  </UForm>
 </template>
 
 <script setup>
@@ -20,6 +21,11 @@ const props = defineProps({
     default: true,
   },
 });
+
+const router = useRouter();
+const route = useRoute();
+
+const searchInput = ref(route.query?.search || "");
 
 const attribute = computed(() => {
   if (!props.padded) {
@@ -31,16 +37,38 @@ const attribute = computed(() => {
   }
   return {};
 });
+
+watch(
+  () => route.query.search,
+  (newSearch) => {
+    searchInput.value = newSearch;
+  }
+);
+
+function handleSearch() {
+  router.push({
+    path: "/search",
+    query: {
+      ...route.query,
+      search: searchInput.value,
+    },
+  });
+}
 </script>
 
 <style scoped>
 .searchbar:not(.no-padded) {
-  padding: 4px;
+  padding: calc(var(--spacing) * 1) /* 0.25rem = 4px */;
 }
 
 .searchbar.no-padded {
-  border-style: solid;
+  border-style: var(--tw-border-style);
   border-width: 2px;
-  border-color: #ee4d2d;
+  border-color: var(--ui-primary);
+  @property --tw-border-style {
+    syntax: "*";
+    inherits: false;
+    initial-value: solid;
+  }
 }
 </style>

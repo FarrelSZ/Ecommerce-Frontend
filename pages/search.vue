@@ -1,6 +1,6 @@
 <template>
   <UContainer id="search-section " class="py-6 flex gap-4">
-    <div class="search-filter flex flex-col gap-5 w-40">
+    <div class="search-filter flex flex-col gap-5 w-48">
       <div class="filter-title flex gap-2 items-center">
         <IconFilter />
         <h2 class="text-base font-bold text-black/80 uppercase">Filter</h2>
@@ -8,57 +8,104 @@
       <div class="filter-item flex flex-col gap-5">
         <h3 class="text-sm text-black/80 font-medium">Batas Harga</h3>
         <div class="flex gap-2 items-center">
-          <UInput type="number" placeholder="RP MIN" hide-controls />
-          <div class="h-[1px] bg-gray-300 w-10"></div>
-          <UInput type="number" placeholder="RP MAX" hide-controls />
+          <UInput v-model="temporaryPrice.minimum_price" type="number" placeholder="Rp MIN" />
+          <div class="h-[1px] bg-gray-300 w-10" />
+          <UInput v-model="temporaryPrice.maximum_price" type="number" placeholder="Rp MAX" />
         </div>
-        <UButton block class="py-2">TERAPKAN</UButton>
+        <UButton block class="py-2" @click="applyFilterPrice">TERAPKAN</UButton>
       </div>
       <hr />
       <div class="filter-item flex flex-col gap-5">
         <h3 class="text-sm text-black/80 font-medium">Berdasarkan Kategori</h3>
-        <div clas="flex flex-col gap-2">
-          <UCheckbox label="data dr backend" />
-          <UCheckbox label="data dr backend" />
-          <UCheckbox label="data dr backend" />
-          <UCheckbox label="data dr backend" />
+        <div class="flex flex-col gap-2">
+          <UCheckbox
+            v-for="cat in categories"
+            :key="`cat-${cat.slug}`"
+            :value-key="cat.slug"
+            v-model="formFilter.categories"
+            :items="cat"
+            :label="cat.name"
+          />
         </div>
       </div>
       <hr />
-      <UButton block class="py-2">HAPUS SEMUA</UButton>
+      <UButton block class="py-2" @click="resetFilter">HAPUS SEMUA</UButton>
     </div>
     <div class="search-result flex-1">
-      <div class="search-keyword flex items-center gap-2 text-gray-600">
+      <div v-if="route.query.search" class="search-keyword flex items-center gap-2 text-gray-600">
         <IconLamp />
-        <p>Hasil pencarian untuk '<span class="text-primary">Testing keyword</span>'</p>
+        <p>
+          Hasil pencarian untuk '<span class="text-primary">{{ route.query?.search }}</span
+          >'
+        </p>
       </div>
-      <div class="search-sort flex items-center gap-2 justify-between px-5 py-3 bg-black/5 mt-4" role="button">
+      <div class="search-sort flex items-center gap-2 justify-between px-5 py-3 bg-black/5 mt-4">
         <div class="search-sort-control flex gap-3 items-center">
           <p class="text-gray-600 text-sm font-normal">Urutkan</p>
-          <UButton class="px-6">Termurah</UButton>
-          <UButton color="white" class="px-6">Termahal</UButton>
+          <UButton
+            :color="formFilter.sorting_price === 'asc' ? 'primary' : 'white'"
+            class="px-6"
+            @click="formFilter.sorting_price = 'asc'"
+            >Termurah</UButton
+          >
+          <UButton
+            :color="formFilter.sorting_price === 'desc' ? 'primary' : 'white'"
+            class="px-6"
+            @click="formFilter.sorting_price = 'desc'"
+            >Termahal</UButton
+          >
         </div>
-        <div class="search-sort-pagination flex gap-5 items-center">
-          <p class="text-sm font-normal text-black/80"><span class="text-primary">1</span>/17</p>
+        <div v-if="data?.data?.data?.length" class="search-sort-pagination flex gap-5 items-center">
+          <p class="text-sm font-normal text-black/80">
+            <span class="text-primary">{{ pagination.page }}</span
+            >/{{ data?.data?.last_page || 0 }}
+          </p>
           <div>
-            <UButton icon="i-heroicons:chevron-left-20-solid" color="gray" size="xs" disabled />
-            <UButton icon="i-heroicons:chevron-right-20-solid" color="gray" size="xs" class="bg-black/5" />
+            <UButton
+              icon="i-heroicons:chevron-left-20-solid"
+              color="gray"
+              size="xs"
+              :disabled="!data?.data?.prev_page_url"
+              @click="pagination.page--"
+            />
+            <UButton
+              icon="i-heroicons:chevron-right-20-solid"
+              color="gray"
+              size="xs"
+              class="bg-black/5"
+              :disabled="!data?.data?.next_page_url"
+              @click="pagination.page++"
+            />
           </div>
         </div>
       </div>
-      <div class="search-content grid grid-cols-5 gap-3 mt-3">
-        <BaseProductCard
-          v-for="i in 10"
-          :key="`product-${i}`"
-          title="Sepatu Sandal Kasual Slingback Mules"
-          price="10000"
-          image="~/assets/images/test-product.png"
-          sale="159"
-        />
+      <div v-if="status === 'pending'" class="search-content">
+        <div v-for="i in 5" :key="`loading-${i}`" class="bg-white p-2">
+          <USkeleton class="aspect-[1/1]" />
+          <USkeleton class="w-full h-4 mt-2" />
+          <USkeleton class="w-8/12 h-4 mt-2" />
+        </div>
       </div>
-      <div class="flex justify-center mt-8">
-        <UPagination v-model:page="page" :total="100" variant="link" :ui="{}" />
-      </div>
+      <template v-else>
+        <template v-if="data?.data?.data?.length">
+          <div class="search-content grid grid-cols-5 gap-3 mt-3">
+            <BaseProductCard
+              v-for="prod in data?.data?.data"
+              :key="`product-${prod.uuid}`"
+              :title="prod.name"
+              :price="prod.price_sale || prod.price"
+              :image="prod.image_url"
+              :sale="prod.sale_count"
+              :slug="prod.slug"
+              :discount="prod.price_discount_percentage"
+            />
+          </div>
+          <div class="flex justify-center mt-8">
+            <BasePagination v-model="pagination.page" :total="data?.data?.total || 0" />
+          </div>
+        </template>
+        <div v-else class="text-center py-4 text-black/65">Tidak ada product yang ditemukan</div>
+      </template>
     </div>
   </UContainer>
 </template>
@@ -152,13 +199,12 @@ const titleMeta = computed(() =>
 
 useSeoMeta({
   title: titleMeta,
-  ogTitle: () => `${titleMeta.value} | Syopo`,
-  twitterTitle: () => `${titleMeta.value} | Syopo`,
+  ogTitle: () => `${titleMeta.value} | Fardeka`,
+  twitterTitle: () => `${titleMeta.value} | Fardeka`,
   description: titleMeta,
   ogDescription: titleMeta,
   twitterDescription: titleMeta,
 });
-const page = ref(5);
 </script>
 
 <style scoped></style>

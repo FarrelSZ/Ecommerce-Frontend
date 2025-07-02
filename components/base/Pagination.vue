@@ -1,6 +1,6 @@
 <template>
   <UPagination
-    v-model="page"
+    v-model:page="page"
     :page-count="pageCount"
     :total="total"
     :inactive-button="{
