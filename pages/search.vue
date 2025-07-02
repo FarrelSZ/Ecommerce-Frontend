@@ -93,11 +93,11 @@
               v-for="prod in data?.data?.data"
               :key="`product-${prod.uuid}`"
               :title="prod.name"
-              :price="prod.price_sale || prod.price"
+              :price="prod?.price_sale || prod?.price"
               :image="prod.image_url"
               :sale="prod.sale_count"
               :slug="prod.slug"
-              :discount="prod.price_discount_percentage"
+              :discount="prod?.price_discount_percentage"
             />
           </div>
           <div class="flex justify-center mt-8">
